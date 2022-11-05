@@ -3,6 +3,12 @@ const productSchema = new mongoose.Schema({
   name:{
     type:String
   },
+  category:{
+    type:String,
+    default:'phone',
+    required:[true, 'A product must have a category']
+
+  },
   price:{
     type:Number,
     required: [ true, 'You must provide a price of the product']

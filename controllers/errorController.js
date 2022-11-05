@@ -1,3 +1,4 @@
+const AppError = require('../utils/appError')
 const sendErrorProd = (error,res) => {
   if(error.isOperational){
     res.status(error.statusCode).json({
@@ -19,6 +20,9 @@ const sendErrorDev = (err,res) => {
     stack: err.stack
   })
 }
+const sendDuplicateFieldError = (error) => {
+  return new AppError(`duplicate data ${Object.keys(error.keyValue)}`, 400)
+}
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -28,6 +32,7 @@ module.exports = (err, req, res, next) => {
   else if(process.env.NODE_ENV === 'PRODUCTION'){
     let error = { ...err }
     error.message = err.message
+    if(error.code === 11000) error = sendDuplicateFieldError(error)
     sendErrorProd(error,res)
   }
 }

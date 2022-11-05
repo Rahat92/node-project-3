@@ -11,6 +11,16 @@ class ApiFeatures{
     this.query = this.query.find(queryObjCopy);
     return this;
   }
+  search(){
+    let keyword = this.queryObj.keyword?{
+      name:{
+        $regex:this.queryObj.keyword,
+        $options:'i'
+      }
+    }:{}
+    this.query = this.query.find({...keyword})
+    return this
+  }
   sort(){
     let sortStr;
     if(this.queryObj.sort){

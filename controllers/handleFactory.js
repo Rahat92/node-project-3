@@ -15,8 +15,8 @@ exports.getAll = Model => {
   return catchAsyncError(async(req,res,next) => {
     let filter = {};
     if(req.params.productId) filter.product = req.params.productId
-    const resPerPage = 5
-    let docs = new ApiFeatures(Model.find(filter),req.query).filter().sort().pagination(resPerPage)
+    const resPerPage = 4
+    let docs = new ApiFeatures(Model.find(filter),req.query).filter().sort().pagination(resPerPage).search()
     docs = await docs.query
     const docNum = await Model.countDocuments()
     res.status(200).json({
@@ -34,7 +34,9 @@ exports.getOne = ( Model, popOptions ) => {
       query = query.populate(popOptions)
     }
     const doc = await query;
-    if(!doc) return next(new AppError(`No document found by this id:${req.params.id} `, 400))
+    if(!doc){
+      return next(new AppError(`No document found by this id:${req.params.id} `, 400))
+    }
     res.status(200).json({
       status:'success',
       doc
@@ -56,7 +58,6 @@ exports.updateOne = Model => {
 exports.deleteOne = Model => {
   return catchAsyncError(async(req,res,next) => {
     const doc = await Model.findByIdAndDelete(req.params.id)
-    if(!doc) return next(new AppError('No Product found by this id',404))
     res.status(200).json({
       status:'success',
       doc:null

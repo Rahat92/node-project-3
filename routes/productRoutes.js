@@ -13,7 +13,7 @@ router
 router
   .route('/:id')
   .get(getProduct)
-  .delete(deleteProduct)
-  .patch(protect, restrictTo('admin'), updateProduct)
+  .delete(protect,restrictTo('admin'),deleteProduct)
+  .patch(protect,restrictTo('admin'),updateProduct)
 const productRouter = router;
 module.exports = productRouter;

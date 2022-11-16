@@ -29,6 +29,8 @@ exports.getAll = Model => {
       docNum,
       currentPage,
       result:docs.length,
+      totalPage:Math.ceil(docNum/resPerPage),
+      resPerPage,
       currentNum: skip+docs.length,
       docs
     })

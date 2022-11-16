@@ -18,7 +18,7 @@ exports.getAll = Model => {
   return catchAsyncError(async(req,res,next) => {
     let filter = {};
     if(req.params.productId) filter.product = req.params.productId
-    const resPerPage = 3
+    const resPerPage = 2;
     const currentPage = req.query.page*1 || 1
     const skip = (currentPage-1)*resPerPage;
     let docs = new ApiFeatures(Model.find(filter),req.query).filter().sort().pagination(resPerPage, skip).search()

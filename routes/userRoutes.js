@@ -10,8 +10,8 @@ router.patch('/updateme', updateMe)
 router.get('/me',getMe, getUser)
 router.patch('/updatepassword', updatePassword)
 
+router.get('/:id', getUser)
 router.use(restrictTo('admin'))
 router.get('/', getAllUser)
-router.get('/:id', getUser)
 const userRouter = router;
 module.exports = userRouter;

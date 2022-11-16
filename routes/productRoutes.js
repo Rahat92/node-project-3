@@ -8,7 +8,7 @@ router.use('/:productId/reviews',reviewRouter)
 router
   .route('/')
   .get(AllProduct)
-  .post(createProduct)
+  .post(protect, restrictTo('admin'),createProduct)
 
 router
   .route('/:id')

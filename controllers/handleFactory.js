@@ -2,11 +2,14 @@ const ApiFeatures = require("../utils/apiFeatures")
 const AppError = require("../utils/appError")
 const catchAsyncError = require("../utils/catchAsyncError")
 
-exports.createOne = Model => {
+exports.createOne = (Model, popOptions) => {
   return catchAsyncError(async(req,res,next) => {
-    const doc = await Model.create(req.body)
+    let doc = await Model.create(req.body)
+    if(popOptions){
+      doc = await Model.findById(doc._id)
+    }
     res.status(200).json({
-      status:'success',
+      status:'success', 
       doc
     })
   })
@@ -15,14 +18,18 @@ exports.getAll = Model => {
   return catchAsyncError(async(req,res,next) => {
     let filter = {};
     if(req.params.productId) filter.product = req.params.productId
-    const resPerPage = 4
-    let docs = new ApiFeatures(Model.find(filter),req.query).filter().sort().pagination(resPerPage).search()
+    const resPerPage = 3
+    const currentPage = req.query.page*1 || 1
+    const skip = (currentPage-1)*resPerPage;
+    let docs = new ApiFeatures(Model.find(filter),req.query).filter().sort().pagination(resPerPage, skip).search()
     docs = await docs.query
     const docNum = await Model.countDocuments()
     res.status(200).json({
       status:'success',
       docNum,
+      currentPage,
       result:docs.length,
+      currentNum: skip+docs.length,
       docs
     })
   })

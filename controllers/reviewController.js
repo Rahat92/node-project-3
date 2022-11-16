@@ -21,4 +21,4 @@ exports.getReview = getOne(Review,{path:'user', select:'name'})
 exports.updateReview = updateOne(Review)
 exports.deleteReview = deleteOne(Review)
 exports.getAllReviews = getAll(Review);
-exports.createReview = createOne(Review)
+exports.createReview = createOne(Review, {path:'user', select:'name'})

@@ -32,9 +32,7 @@ class ApiFeatures{
     this.query = this.query.sort(sortStr)
     return this;
   }
-  pagination(resPerPage){
-    const currentPage = this.queryObj.page*1 || 1
-    const skip = (currentPage-1)*resPerPage;
+  pagination(resPerPage, skip){
     this.query = this.query.limit(resPerPage).skip(skip)
     return this;
   }

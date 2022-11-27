@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     type:String,
     unique: true
   },
+  photo: {
+    type: String,
+    contentType: String,
+    default: 'Screenshot_1.png'
+  },
   password:{
     type:String,
     select:false

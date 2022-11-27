@@ -1,12 +1,18 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
+const bodyParser = require('body-parser');
 const errorController = require('./controllers/errorController');
 const productRouter = require('./routes/productRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
-
+var path = require('path');
 const app = express();
+app.use('/public',express.static('public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
 app.use(express.json());
 app.use(cookieParser())
 // app.use((req,res,next) => {

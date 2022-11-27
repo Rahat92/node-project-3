@@ -1,15 +1,61 @@
 const User = require("../models/userModel");
 const { promisify} = require('util')
 const jwt = require('jsonwebtoken');
+const multer = require('multer')
 const catchAsyncError = require("../utils/catchAsyncError");
 const AppError = require("../utils/appError");
-const { getOne, getAll } = require("./handleFactory");
+const { getOne, getAll, deleteOne } = require("./handleFactory");
 const sendMail = require('./email');
+
 const tokenProducer = (id) => {
   return jwt.sign({id},'amarsonarbangla',{
     expiresIn:'10d',
   })
 }
+
+// const multerStorage = multer.diskStorage({
+//   destination:(req,file,cb) => {
+//     cb(null, 'public/img/users')
+//   },
+//   filename: (req,file,cb) => {
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`)
+//   }
+// })
+
+// const multerFilter = (req,file,cb) => {
+//   if(file.mimetype.startsWith('image')){
+//     cb(null, true)
+//   }else{
+//     cb(new AppError('Only image you can upload', 400), false)
+//   }
+// }
+// const upload = multer({
+//   storage:multerStorage,
+//   fileFilter: multerFilter,
+// })
+
+const multerStorage = multer.diskStorage({
+  destination: (req,file, cb) => {
+    cb(null, 'public/img/users')
+  },
+  filename: (req,file,cb) => {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`)
+  }
+})
+const multerFilter = (req,file, cb) => {
+  if(file.mimetype.startsWith('image')){
+    cb(null, true)
+  }else{
+    cb(new AppError('Only image you can upload', 400), false)
+  }
+}
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+})
+
 const createResponseAndSendToken = (user,res,statusCode) => {
   const token = tokenProducer(user._id);
   const cookieOptions = {
@@ -24,6 +70,7 @@ const createResponseAndSendToken = (user,res,statusCode) => {
     user
   })
 }
+exports.uploadUserPhoto = upload.single('photo')
 exports.signUp = catchAsyncError(async(req,res,next) => {
   const { name, role, email, password, passwordConfirm } = req.body;
   const newUser = await User.create({
@@ -87,12 +134,27 @@ exports.getMe = (req,res,next) => {
 exports.getAllUser = getAll(User)
 exports.getUser = getOne(User)
 exports.updateMe = catchAsyncError(async(req,res,next) => {
+  console.log(req.file)
+  console.log(req.body)
   if(req.body.password || req.body.passwordConfirm) return next(new AppError(`This route not for password update`,400))
   const allowedField = filtered(req.body, "name","email")
+  if(req.file) allowedField.photo = req.file.filename
   const user = await User.findByIdAndUpdate(req.user._id,allowedField,{
     new:true,
     runValidators:true
   });
+  res.status(200).json({
+    status:'success',
+    user
+  })
+})
+exports.updateUserRole = catchAsyncError(async(req,res,next) => {
+  const { role } = req.body;
+  const user = await User.findByIdAndUpdate(req.params.id,{role}, {
+    new: true,
+    runValidators: true
+  })
+  if(!user) return next(new AppError('no user found by this id', 400))
   res.status(200).json({
     status:'success',
     user
@@ -148,3 +210,4 @@ exports.forgotPassword = catchAsyncError(async(req,res,next) => {
     return next(new AppError(`there was an error sending the email, Please try again`,500))
   }
 })
+exports.deleteUser = deleteOne(User)

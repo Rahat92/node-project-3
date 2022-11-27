@@ -29,7 +29,7 @@ class ApiFeatures{
     }else{
       sortStr = 'price'
     }
-    this.query = this.query.sort(sortStr+' _id')
+    this.query = this.query.sort(sortStr+' -_id')
     return this;
   }
   pagination(resPerPage, skip){
